@@ -1,8 +1,8 @@
 pipeline{
     agent any
     tools{
-        jdk 'jdk17'
-        nodejs 'node16'
+        jdk 'JDK-17'
+        nodejs 'node 16'
     }
     environment {
         SCANNER_HOME=tool 'sonar-scanner'
@@ -15,7 +15,7 @@ pipeline{
         }
         stage('Checkout from Git'){
             steps{
-                git branch: 'main', url: 'https://github.com/CNaveen0101/Netflix-clone.git'
+                git branch: 'main', url: 'https://github.com/satya36-cpu/Netflix-clone.git'
             }
         }
         stage("Sonarqube Analysis "){
@@ -53,33 +53,23 @@ pipeline{
             steps{
                 script{
                    withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){   
-                       sh "docker build --build-arg TMDB_V3_API_KEY=7388e999dce9bd72d8a0bb287dc9ff3e -t netflix ."
-                       sh "docker tag netflix naveen0101/netflix:latest "
-                       sh "docker push naveen0101/netflix:latest "
+                       sh "docker build --build-arg TMDB_V3_API_KEY=5710176a1f1ef5324f7e025d5b6ad7a3 -t netflix ."
+                       sh "docker tag netflix satyabrata36/netflix:latest "
+                       sh "docker push satyabrata36/netflix:latest "
                     }
                 }
             }
         }
         stage("TRIVY"){
             steps{
-                sh "trivy image naveen0101/netflix:latest > trivyimage.txt" 
+                sh "trivy image satyabrata36/netflix:latest > trivyimage.txt" 
             }
         }
         stage('Deploy to container'){
             steps{
-                sh 'docker run -d --name netflix -p 8081:80 naveen0101/netflix:latest'
+                sh 'docker run -d --name netflix -p 8081:80 satyabrata36/netflix:latest'
             }
         }
     }
-    post {
-     always {
-        emailext attachLog: true,
-            subject: "'${currentBuild.result}'",
-            body: "Project: ${env.JOB_NAME}<br/>" +
-                "Build Number: ${env.BUILD_NUMBER}<br/>" +
-                "URL: ${env.BUILD_URL}<br/>",
-            to: 'kumarnaveen3098@gmail.com',
-            attachmentsPattern: 'trivyfs.txt'
-           }
-        }
-    }
+    
+}
